@@ -1,119 +1,90 @@
 import React, { useState } from "react";
 import "./Calculator.css";
 
-const Calculator = () => {
-  const [displayValue, setDisplayValue] = useState("0");
-  const [previousValue, setPreviousValue] = useState(null);
-  const [operator, setOperator] = useState(null);
+export default function Calculator() {
+  const [screenValue, setScreenValue] = useState("");
 
-  const handleNumberClick = (number) => {
-    if (displayValue === "0") {
-      setDisplayValue(number);
-    } else {
-      setDisplayValue((prevDisplay) => prevDisplay + number);
+  const addSymbol = (element) => {
+    setScreenValue((prevValue) => prevValue + element);
+  };
+
+  const clearScreen = () => {
+    setScreenValue("");
+  };
+
+  const calculate = () => {
+    let result;
+    try {
+      result = evaluateExpression(screenValue);
+    } catch (error) {
+      result = "Error";
     }
+    setScreenValue(result.toString());
   };
 
-  const handleOperatorClick = (operator) => {
-    setOperator(operator);
-    setPreviousValue(displayValue);
-    setDisplayValue("0");
-  };
+  const evaluateExpression = (expression) => {
+    const operators = ["+", "-", "*", "/"];
+    let currentNumber = "";
+    let result = 0;
+    let currentOperator = "+";
 
-  const handleEqualClick = () => {
-    const current = parseFloat(displayValue);
-    const previous = parseFloat(previousValue);
+    for (let i = 0; i < expression.length; i++) {
+      const char = expression[i];
 
-    if (operator === "+") {
-      setDisplayValue(previous + current);
-    } else if (operator === "-") {
-      setDisplayValue(previous - current);
-    } else if (operator === "*") {
-      setDisplayValue(previous * current);
-    } else if (operator === "/") {
-      setDisplayValue(previous / current);
+      if (operators.includes(char)) {
+        result = performOperation(
+          result,
+          parseInt(currentNumber),
+          currentOperator
+        );
+        currentNumber = "";
+        currentOperator = char;
+      } else {
+        currentNumber += char;
+      }
     }
 
-    setOperator(null);
-    setPreviousValue(null);
+    result = performOperation(result, parseInt(currentNumber), currentOperator);
+
+    return result;
   };
 
-  const handleClearClick = () => {
-    setDisplayValue("0");
-    setPreviousValue(null);
-    setOperator(null);
+  const performOperation = (num1, num2, operator) => {
+    switch (operator) {
+      case "+":
+        return num1 + num2;
+      case "-":
+        return num1 - num2;
+      case "*":
+        return num1 * num2;
+      case "/":
+        return num1 / num2;
+      default:
+        throw new Error("Invalid operator");
+    }
   };
 
   return (
-    <div className="calculator">
-      <div className="display">{displayValue}</div>
-      <div className="keypad">
-        <button className="key" onClick={() => handleNumberClick("7")}>
-          7
-        </button>
-        <button className="key" onClick={() => handleNumberClick("8")}>
-          8
-        </button>
-        <button className="key" onClick={() => handleNumberClick("9")}>
-          9
-        </button>
-        <button
-          className="key operator"
-          onClick={() => handleOperatorClick("/")}
-        >
-          ÷
-        </button>
-        <button className="key" onClick={() => handleNumberClick("4")}>
-          4
-        </button>
-        <button className="key" onClick={() => handleNumberClick("5")}>
-          5
-        </button>
-        <button className="key" onClick={() => handleNumberClick("6")}>
-          6
-        </button>
-        <button
-          className="key operator"
-          onClick={() => handleOperatorClick("*")}
-        >
-          ×
-        </button>
-        <button className="key" onClick={() => handleNumberClick("1")}>
-          1
-        </button>
-        <button className="key" onClick={() => handleNumberClick("2")}>
-          2
-        </button>
-        <button className="key" onClick={() => handleNumberClick("3")}>
-          3
-        </button>
-        <button
-          className="key operator"
-          onClick={() => handleOperatorClick("-")}
-        >
-          −
-        </button>
-        <button className="key" onClick={() => handleNumberClick("0")}>
-          0
-        </button>
-        <button className="key" onClick={() => handleNumberClick(".")}>
-          .
-        </button>
-        <button className="key equal" onClick={handleEqualClick}>
-          =
-        </button>
-        <button
-          className="key operator"
-          onClick={() => handleOperatorClick("+")}
-        >
-          +
-        </button>
-        <button className="key clear" onClick={handleClearClick}>
-          AC
-        </button>
-      </div>
-    </div>
+    <main>
+      <article className="calculator">
+        <input id="screen" type="text" value={screenValue} readOnly />
+        <button onClick={() => addSymbol("1")}>1</button>
+        <button onClick={() => addSymbol("2")}>2</button>
+        <button onClick={() => addSymbol("3")}>3</button>
+        <button onClick={() => addSymbol("4")}>4</button>
+        <button onClick={() => addSymbol("5")}>5</button>
+        <button onClick={() => addSymbol("6")}>6</button>
+        <button onClick={() => addSymbol("7")}>7</button>
+        <button onClick={() => addSymbol("8")}>8</button>
+        <button onClick={() => addSymbol("9")}>9</button>
+        <button onClick={() => addSymbol("0")}>0</button>
+        <button onClick={() => addSymbol("+")}>+</button>
+        <button onClick={() => addSymbol("-")}>-</button>
+        <button onClick={() => addSymbol("*")}>*</button>
+        <button onClick={() => addSymbol("/")}>/</button>
+        <button onClick={calculate}>=</button>
+        <button onClick={clearScreen}>Clear</button>
+      </article>
+    </main>
   );
-};
-
-export default Calculator;
+}
